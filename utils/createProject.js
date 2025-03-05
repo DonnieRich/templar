@@ -1,9 +1,10 @@
 import fs from 'fs/promises';
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import chalk from 'chalk';
+import { execSync } from 'node:child_process';
+import os from 'node:os';
 
-export const copyTemplateFilesAndFolders = async (source, destination, projectName) => {
+export const copyTemplateFilesAndFolders = async (source, destination, projectName, requestedPackage) => {
     const filesAndFolders = await fs.readdir(source);
 
     for (const entry of filesAndFolders) {
@@ -15,19 +16,18 @@ export const copyTemplateFilesAndFolders = async (source, destination, projectNa
 
         if (stat.isDirectory()) {
 
-            if (/node_modules/.test(currentSource)) {
-                return;
+            // Avoid overwriting temp node_modules folder
+            if (!/node_modules/.test(entry)) {
+                await fs.mkdir(currentDestination);
+                await copyTemplateFilesAndFolders(currentSource, currentDestination);
             }
-
-            await fs.mkdir(currentDestination);
-            await copyTemplateFilesAndFolders(currentSource, currentDestination);
 
         } else {
 
             // If the file is package.json we replace the default name with the one provided by the user
             if (/package.json/.test(currentSource)) {
                 const currentPackageJson = await fs.readFile(currentSource, 'utf8');
-                const newFileContent = currentPackageJson.replace(/custom-scaffolding/g, projectName);
+                const newFileContent = currentPackageJson.replace(requestedPackage, projectName);
 
                 await fs.writeFile(currentDestination, newFileContent, 'utf8');
             } else {
@@ -38,23 +38,28 @@ export const copyTemplateFilesAndFolders = async (source, destination, projectNa
     }
 };
 
-export const init = async (projectName, scope, prefix) => {
+export const init = async (projectName, requestedPackage) => {
 
-    const destination = path.join(process.cwd(), projectName);
+    const tempFolder = await fs.mkdtemp(path.join(os.tmpdir(), projectName));
+    const originalDir = process.cwd();
 
-    // const source = path.resolve(
-    //     path.dirname(fileURLToPath(import.meta.url)),
-    //     "../template/vue"
-    // );
-    const source = path.join(process.cwd(), projectName, `/node_modules/${scope}/${prefix}-starter-kit`);
+    execSync(`npm install ${requestedPackage} --install-strategy=nested --prefix ${projectName} --no-package-lock`, { stdio: "inherit", cwd: tempFolder });
+
+    const destination = path.join(originalDir, projectName);
+    const source = path.join(tempFolder, projectName, `/node_modules/${requestedPackage}`);
 
     try {
         console.log('📑  Copying files...');
 
-        //await fs.mkdir(destination);
-        await copyTemplateFilesAndFolders(source, destination, projectName);
+        await fs.mkdir(destination);
+        await copyTemplateFilesAndFolders(source, destination, projectName, requestedPackage);
 
         console.log('📑  Files copied...');
+
+        console.log(`♻️  Removing temp folder ${tempFolder}`);
+        await fs.rm(tempFolder, { recursive: true });
+        console.log('✅  Removed temp folder...');
+
         console.log(chalk.green(`\ncd ${projectName}\nnpm install\nnpm run dev`));
     } catch (error) {
         console.log(error);

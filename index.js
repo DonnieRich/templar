@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
-import toUppercase from '@ricciodev/create-simple-test/utils/toUppercase.js';
 import { init } from '@ricciodev/create-simple-test/utils/createProject.js';
 import inquirer from 'inquirer';
-import { execSync } from 'node:child_process';
 
 const scope = '@ricciodev';
 const starterKits = [
@@ -25,15 +23,16 @@ const starterKits = [
             choices: [...starterKits]
         }
     ])
-    .then(async (answers) => {
-        execSync(`npm install ${scope}/${answers.prefix}-starter-kit --install-strategy=nested --prefix ${answers.projectName} --no-package-lock`, { stdio: "inherit" });
-        await init(answers.projectName, scope, answers.prefix);
+    .then((answers) => {
+        const requestedPackage = `${scope}/${answers.prefix}-starter-kit`;
+        init(answers.projectName, requestedPackage);
     })
     .catch((error) => {
         if (error.isTtyError) {
             // Prompt couldn't be rendered in the current environment
             console.error("Cannot render the prompt...");
         } else {
+            console.log(error);
             console.error(error.message);
         }
     }))();
