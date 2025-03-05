@@ -51,7 +51,7 @@ export const init = async (projectName, scope, prefix) => {
     try {
         console.log('📑  Copying files...');
 
-        await fs.mkdir(destination);
+        //await fs.mkdir(destination);
         await copyTemplateFilesAndFolders(source, destination, projectName);
 
         console.log('📑  Files copied...');
