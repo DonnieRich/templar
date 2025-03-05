@@ -3,8 +3,9 @@
 import toUppercase from '@ricciodev/create-simple-test/utils/toUppercase.js';
 import { init } from '@ricciodev/create-simple-test/utils/createProject.js';
 import inquirer from 'inquirer';
+import { execSync } from 'node:child_process';
 
-(async () => inquirer
+(() => inquirer
     .prompt([
         {
             type: "input",
@@ -13,8 +14,9 @@ import inquirer from 'inquirer';
             default: "obi-wan-kenobi"
         }
     ])
-    .then((answers) => {
-        init(answers.projectName);
+    .then(async (answers) => {
+        // await init(answers.projectName);
+        execSync(`npm install @ricciodev/vue-starter-kit --prefix ${answers.projectName}`, { stdio: "inherit" });
     })
     .catch((error) => {
         if (error.isTtyError) {
