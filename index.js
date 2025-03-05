@@ -16,7 +16,7 @@ import { execSync } from 'node:child_process';
     ])
     .then(async (answers) => {
         // await init(answers.projectName);
-        execSync(`npm install @ricciodev/vue-starter-kit --prefix ${answers.projectName}`, { stdio: "inherit" });
+        execSync(`npm install @ricciodev/vue-starter-kit --prefix ${answers.projectName} --no-package-lock --no-audit --ignore-scripts`, { stdio: "inherit" });
     })
     .catch((error) => {
         if (error.isTtyError) {
