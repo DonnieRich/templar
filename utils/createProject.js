@@ -15,6 +15,10 @@ export const copyTemplateFilesAndFolders = async (source, destination, projectNa
 
         if (stat.isDirectory()) {
 
+            if (/node_modules/.test(currentSource)) {
+                return;
+            }
+
             await fs.mkdir(currentDestination);
             await copyTemplateFilesAndFolders(currentSource, currentDestination);
 
@@ -34,14 +38,15 @@ export const copyTemplateFilesAndFolders = async (source, destination, projectNa
     }
 };
 
-export const init = async (projectName) => {
+export const init = async (projectName, scope, prefix) => {
 
     const destination = path.join(process.cwd(), projectName);
 
-    const source = path.resolve(
-        path.dirname(fileURLToPath(import.meta.url)),
-        "../template/vue"
-    );
+    // const source = path.resolve(
+    //     path.dirname(fileURLToPath(import.meta.url)),
+    //     "../template/vue"
+    // );
+    const source = path.join(process.cwd(), projectName, `/node_modules/${scope}/${prefix}-starter-kit`);
 
     try {
         console.log('📑  Copying files...');

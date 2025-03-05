@@ -5,6 +5,11 @@ import { init } from '@ricciodev/create-simple-test/utils/createProject.js';
 import inquirer from 'inquirer';
 import { execSync } from 'node:child_process';
 
+const scope = '@ricciodev';
+const starterKits = [
+    'vue'
+];
+
 (() => inquirer
     .prompt([
         {
@@ -12,11 +17,17 @@ import { execSync } from 'node:child_process';
             name: "projectName",
             message: "Enter your project name",
             default: "obi-wan-kenobi"
+        },
+        {
+            type: "list",
+            name: "prefix",
+            message: "Select a starter kit",
+            choices: [...starterKits]
         }
     ])
     .then(async (answers) => {
-        // await init(answers.projectName);
-        execSync(`npm install @ricciodev/vue-starter-kit --prefix ${answers.projectName} --no-package-lock --no-audit --ignore-scripts`, { stdio: "inherit" });
+        execSync(`npm install ${scope}/${answers.prefix}-starter-kit --install-strategy=nested --prefix ${answers.projectName} --no-package-lock`, { stdio: "inherit" });
+        await init(answers.projectName, scope, answers.prefix);
     })
     .catch((error) => {
         if (error.isTtyError) {
