@@ -1,6 +1,6 @@
 {
     "name": "@ricciodev/create-simple-test",
-    "version": "0.0.15",
+    "version": "0.0.16",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
