@@ -1,0 +1,21 @@
+{
+    "name": "@ricciodev/create-simple-test",
+    "version": "0.0.13",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "bin": {
+        "create-simple-test": "./index.js"
+    },
+    "exports": {
+        ".": "./index.js",
+        "./utils/*.js": "./utils/*.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "chalk": "^5.4.1",
+        "inquirer": "^12.4.2"
+    }
+}
