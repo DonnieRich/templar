@@ -43,10 +43,10 @@ export const init = async (projectName, requestedPackage) => {
     const tempFolder = await fs.mkdtemp(path.join(os.tmpdir(), projectName));
     const originalDir = process.cwd();
 
-    execSync(`npm install ${requestedPackage} --install-strategy=nested --prefix ${projectName} --no-package-lock`, { stdio: "inherit", cwd: tempFolder });
+    execSync(`npm install ${requestedPackage} --install-strategy=nested --no-package-lock`, { stdio: "inherit", cwd: tempFolder });
 
     const destination = path.join(originalDir, projectName);
-    const source = path.join(tempFolder, projectName, `/node_modules/${requestedPackage}`);
+    const source = path.join(tempFolder, `/node_modules/${requestedPackage}`);
 
     try {
         console.log('📑  Copying files...');

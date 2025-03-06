@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
 import { init } from '@ricciodev/create-simple-test/utils/createProject.js';
+import { allowedPackages, starterKits, scope } from '@ricciodev/create-simple-test/utils/allowedPackages.js';
 import inquirer from 'inquirer';
-
-const scope = '@ricciodev';
-const starterKits = [
-    'vue'
-];
 
 (() => inquirer
     .prompt([
@@ -25,6 +21,11 @@ const starterKits = [
     ])
     .then((answers) => {
         const requestedPackage = `${scope}/${answers.prefix}-starter-kit`;
+
+        if (!allowedPackages().includes(requestedPackage)) {
+            throw new Error("Invalid package");
+        }
+
         init(answers.projectName, requestedPackage);
     })
     .catch((error) => {
@@ -32,7 +33,6 @@ const starterKits = [
             // Prompt couldn't be rendered in the current environment
             console.error("Cannot render the prompt...");
         } else {
-            console.log(error);
             console.error(error.message);
         }
     }))();
