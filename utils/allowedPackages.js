@@ -1,4 +1,4 @@
-export const scope = '@ricciodev';
+export const scope = 'DonnieRich';
 export const starterKits = [
     'vue'
 ];

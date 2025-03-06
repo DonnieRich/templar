@@ -21,12 +21,13 @@ import inquirer from 'inquirer';
     ])
     .then((answers) => {
         const requestedPackage = `${scope}/${answers.prefix}-starter-kit`;
+        const fullURL = `https://github.com/${requestedPackage}.git`
 
         if (!allowedPackages().includes(requestedPackage)) {
             throw new Error("Invalid package");
         }
 
-        init(answers.projectName, requestedPackage);
+        init(answers.projectName, fullURL);
     })
     .catch((error) => {
         if (error.isTtyError) {
