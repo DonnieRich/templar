@@ -1,12 +1,12 @@
 {
-    "name": "@ricciodev/create-simple-test",
+    "name": "@ricciodev/create-templar",
     "version": "1.0.0",
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "bin": {
-        "create-simple-test": "./index.js"
+        "create-templar": "./index.js"
     },
     "exports": {
         ".": "./index.js",
