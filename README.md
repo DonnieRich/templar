@@ -1,7 +1,7 @@
 # TEMPLAR
 
 <p align="center">
-  <img src="./images/logo.webp" alt="Templar Logo" width="150">
+  <img src="https://github.com/DonnieRich/templar/raw/main/images/logo.webp" alt="Templar Logo" width="150">
 </p>
 
 ## Description
@@ -17,7 +17,7 @@ Templar is a powerful and lightweight Node.js package designed to bring order an
 
 ## Usage
 ```js
-npm create templar@latest
+npm create @ricciodev/templar@latest
 ```
 Then follow the instructions in the terminal. You will name your project and choose the scaffolding.
 At the moment there is only one scaffolding project made in VueJS. More will come soon.
