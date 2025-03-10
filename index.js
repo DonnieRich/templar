@@ -1,14 +1,8 @@
 #!/usr/bin/env node
 
-import toUppercase from '@ricciodev/create-simple-test/utils/toUppercase.js';
 import { init } from '@ricciodev/create-simple-test/utils/createProject.js';
+import { allowedPackages, starterKits, scope } from '@ricciodev/create-simple-test/utils/allowedPackages.js';
 import inquirer from 'inquirer';
-import { execSync } from 'node:child_process';
-
-const scope = '@ricciodev';
-const starterKits = [
-    'vue'
-];
 
 (() => inquirer
     .prompt([
@@ -25,9 +19,14 @@ const starterKits = [
             choices: [...starterKits]
         }
     ])
-    .then(async (answers) => {
-        execSync(`npm install ${scope}/${answers.prefix}-starter-kit --install-strategy=nested --prefix ${answers.projectName} --no-package-lock`, { stdio: "inherit" });
-        await init(answers.projectName, scope, answers.prefix);
+    .then((answers) => {
+        const requestedPackage = `${scope}/${answers.prefix}-starter-kit`;
+
+        if (!allowedPackages().includes(requestedPackage)) {
+            throw new Error("Invalid package");
+        }
+
+        init(answers.projectName, requestedPackage);
     })
     .catch((error) => {
         if (error.isTtyError) {

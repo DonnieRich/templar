@@ -1,62 +1,56 @@
 import fs from 'fs/promises';
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import chalk from 'chalk';
+import { execSync } from 'node:child_process';
 
-export const copyTemplateFilesAndFolders = async (source, destination, projectName) => {
-    const filesAndFolders = await fs.readdir(source);
+const updatePackageJson = async (projectPath, requestedPackage, projectName) => {
 
-    for (const entry of filesAndFolders) {
+    console.log(chalk.gray('Updating package.json...'));
 
-        const currentSource = path.join(source, entry);
-        const currentDestination = path.join(destination, entry);
+    const packagePath = path.join(projectPath, 'package.json');
+    const stat = await fs.lstat(packagePath);
 
-        const stat = await fs.lstat(currentSource);
-
-        if (stat.isDirectory()) {
-
-            if (/node_modules/.test(currentSource)) {
-                return;
-            }
-
-            await fs.mkdir(currentDestination);
-            await copyTemplateFilesAndFolders(currentSource, currentDestination);
-
-        } else {
-
-            // If the file is package.json we replace the default name with the one provided by the user
-            if (/package.json/.test(currentSource)) {
-                const currentPackageJson = await fs.readFile(currentSource, 'utf8');
-                const newFileContent = currentPackageJson.replace(/custom-scaffolding/g, projectName);
-
-                await fs.writeFile(currentDestination, newFileContent, 'utf8');
-            } else {
-                await fs.copyFile(currentSource, currentDestination);
-            }
-
-        }
+    if (stat.isFile()) {
+        const currentPackageJson = await fs.readFile(packagePath, 'utf8');
+        const newFileContent = currentPackageJson.replace(requestedPackage, projectName);
+        await fs.writeFile(packagePath, newFileContent, 'utf8');
     }
-};
+}
 
-export const init = async (projectName, scope, prefix) => {
+const removeGitFolder = async (projectPath) => {
 
-    const destination = path.join(process.cwd(), projectName);
+    console.log(chalk.gray('Removing .git folder...'));
 
-    // const source = path.resolve(
-    //     path.dirname(fileURLToPath(import.meta.url)),
-    //     "../template/vue"
-    // );
-    const source = path.join(process.cwd(), projectName, `/node_modules/${scope}/${prefix}-starter-kit`);
+    const gitFolderPath = path.join(projectPath, '.git');
+    const stat = await fs.lstat(gitFolderPath);
+
+    if (stat.isDirectory()) {
+        await fs.rm(gitFolderPath, {
+            recursive: true
+        });
+    }
+}
+
+export const init = async (projectName, requestedPackage) => {
 
     try {
-        console.log('📑  Copying files...');
 
-        //await fs.mkdir(destination);
-        await copyTemplateFilesAndFolders(source, destination, projectName);
+        const currentDir = process.cwd();
+        const destination = path.join(currentDir, projectName);
+        const fullURL = `https://github.com/${requestedPackage}.git`
 
-        console.log('📑  Files copied...');
+        console.log(chalk.gray('📑  Copying files...'));
+
+        await fs.mkdir(destination);
+        execSync(`git clone --depth 1 ${fullURL} .`, { stdio: "inherit", cwd: destination });
+
+        console.log(chalk.gray('📑  Files copied...'));
+
+        await removeGitFolder(destination);
+        await updatePackageJson(destination, requestedPackage, projectName);
+
         console.log(chalk.green(`\ncd ${projectName}\nnpm install\nnpm run dev`));
     } catch (error) {
-        console.log(error);
+        console.log(chalk.red(error));
     }
 };
